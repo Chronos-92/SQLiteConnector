@@ -5,11 +5,19 @@ using System.Linq;
 
 namespace SQLiteConnector {
     internal static class SQLiteExtensions {
+        internal static SQLiteCommand CreateCommand(this System.Data.SQLite.SQLiteConnection connection, String command, SQLiteTransaction transaction) {
+            return new SQLiteCommand(command, connection, transaction);
+        }
         internal static SQLiteCommand CreateCommand(this System.Data.SQLite.SQLiteConnection connection, String command) {
             return new SQLiteCommand(command, connection);
         }
         internal static SQLiteCommand CreateCommand(this System.Data.SQLite.SQLiteConnection connection, String command, Dictionary<String, Object> parameters) {
             var cmd = connection.CreateCommand(command);
+            cmd.Parameters.AddRange((from p in parameters select new SQLiteParameter(p.Key, p.Value)).ToArray());
+            return cmd;
+        }
+        internal static SQLiteCommand CreateCommand(this System.Data.SQLite.SQLiteConnection connection, String command, Dictionary<String, Object> parameters, SQLiteTransaction transaction) {
+            var cmd = connection.CreateCommand(command, transaction);
             cmd.Parameters.AddRange((from p in parameters select new SQLiteParameter(p.Key, p.Value)).ToArray());
             return cmd;
         }
